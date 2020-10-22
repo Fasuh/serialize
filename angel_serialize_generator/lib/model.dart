@@ -85,7 +85,7 @@ class JsonModelGenerator extends GeneratorForAnnotation<Serializable> {
 
   bool shouldBeConstant(BuildContext ctx) {
     // Check if all fields are without a getter
-    return !isAssignableToModel(ctx.clazz.type) &&
+    return !isAssignableToModel(ctx.clazz.thisType) &&
         ctx.clazz.fields.every((f) =>
             f.getter?.isAbstract != false && f.setter?.isAbstract != false);
   }
@@ -208,18 +208,18 @@ class JsonModelGenerator extends GeneratorForAnnotation<Serializable> {
   static String generateEquality(DartType type, [bool nullable = false]) {
     if (type is InterfaceType) {
       if (const TypeChecker.fromRuntime(List).isAssignableFromType(type)) {
-        if (type.typeParameters.length == 1) {
+        if (type.element.typeParameters.length == 1) {
           var eq = generateEquality(type.typeArguments[0]);
-          return 'ListEquality<${type.typeArguments[0].name}>($eq)';
+          return 'ListEquality<${type.typeArguments[0].getDisplayString(withNullability: false)}>($eq)';
         } else {
           return 'ListEquality()';
         }
       } else if (const TypeChecker.fromRuntime(Map)
           .isAssignableFromType(type)) {
-        if (type.typeParameters.length == 2) {
+        if (type.element.typeParameters.length == 2) {
           var keq = generateEquality(type.typeArguments[0]),
               veq = generateEquality(type.typeArguments[1]);
-          return 'MapEquality<${type.typeArguments[0].name}, ${type.typeArguments[1].name}>(keys: $keq, values: $veq)';
+          return 'MapEquality<${type.typeArguments[0].getDisplayString(withNullability: false)}, ${type.typeArguments[1].getDisplayString(withNullability: false)}>(keys: $keq, values: $veq)';
         } else {
           return 'MapEquality()';
         }
